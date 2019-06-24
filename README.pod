@@ -1,0 +1,30 @@
+=head1 SYNOPSIS
+
+with 113k rows generated:
+
+    pg-n-pl-bulking$ prove -l t/
+    t/01_test-clean-db.t ................................. 1/? NOTICE:  trigger "pg_n_pl_bulking_updated_trg" for relation "pg_n_pl_bulking" does not exist, skipping
+    t/01_test-clean-db.t ................................. ok   
+    t/02_generate-import-data.t .......................... ok   
+    t/03_insert-data_standard.t .......................... 5/? # total speed 0.516k/s
+    t/03_insert-data_standard.t .......................... ok   
+    t/04_insert-data_standard_pre_select_chunks.t ........ 5/? # total speed 0.607k/s
+    t/04_insert-data_standard_pre_select_chunks.t ........ ok   
+    t/05_insert-data_standard_pre_select_chunks_async.t .. 5/? # total speed 0.592k/s
+    t/05_insert-data_standard_pre_select_chunks_async.t .. ok   
+    t/06_insert-data_standard_pre_select_chunks_multi.t .. 5/? # total speed 8.291k/s
+    t/06_insert-data_standard_pre_select_chunks_multi.t .. ok   
+    t/07_insert-data_standard_pre_select_chunks_copy.t ... 5/? # total speed 9.027k/s
+    t/07_insert-data_standard_pre_select_chunks_copy.t ... ok   
+    All tests successful.
+    Files=7, Tests=41, 633 wallclock secs ( 0.04 usr  0.00 sys + 87.40 cusr 22.72 csys = 110.16 CPU)
+    Result: PASS
+
+=head1 TODO
+
+    * \copy escaping issues (with possible table and backslashes in jsonb)
+    * deduplicating same-iden rows in same chunk
+    * try txn_do { delete + insert }
+    * use prepare() statements
+
+=cut
