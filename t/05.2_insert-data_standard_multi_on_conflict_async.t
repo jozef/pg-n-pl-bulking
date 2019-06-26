@@ -42,7 +42,7 @@ sub insert_or_update {
                 . join(',', map {'(?,?,?,?)'} (1 .. $insert_count))
                 . ' ON CONFLICT (ident) DO'
                 . ' UPDATE SET title=EXCLUDED.title, num=EXCLUDED.num, meta=EXCLUDED.meta',
-            {},
+            {pg_async => PG_ASYNC + PG_OLDQUERY_WAIT},
             (map { @{$_} } values(%$inserts)),
         );
 

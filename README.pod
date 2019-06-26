@@ -84,10 +84,30 @@ pg_hba.conf, datable and role:
     # to create test tables
     prove -l t/01_test-clean-db.t -v
 
+=head1 RUN
+
+once database config is in place, simply execute:
+
+    make
+
+or for a single test
+
+    prove -l t/…
+
+pleae note that the F<03.1_insert-data_standard.t> will generate database
+dump F< tmp/test_dump-pg_n_pl_bulking.tsv > for verifing if the other
+methods are correctly inserting/updating the data.
+
 =head1 TODO/FIXME
 
     * \copy escaping issues (with possible tabs and backslashes in jsonb)
     * deduplicating same-iden rows in same chunk
     * try txn_do { delete + insert }
+
+=head1 SEE ALSO
+
+More text/description and commenting possibility on my blog: L< https://blog.kutej.net/2019/06/pg-n-pl-bulking >.
+
+Feel free to create an issue or make a pull-request on GitHub L< https://github.com/jozef/pg-n-pl-bulking >.
 
 =cut
