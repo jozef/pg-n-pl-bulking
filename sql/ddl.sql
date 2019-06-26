@@ -9,8 +9,10 @@ CREATE TABLE pg_n_pl_bulking (
     updated TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
     meta JSONB NOT NULL
 );
-CREATE UNIQUE INDEX pg_n_pl_bulking_ident_idx ON pg_n_pl_bulking USING btree (ident);
-CREATE INDEX pg_n_pl_bulking_num_idx ON pg_n_pl_bulking USING btree (num);
+CREATE UNIQUE INDEX pg_n_pl_bulking_ident_idx
+    ON pg_n_pl_bulking USING btree (ident);
+CREATE INDEX pg_n_pl_bulking_num_idx
+    ON pg_n_pl_bulking USING btree (num);
 
 
 -- updated timestamp function
@@ -24,5 +26,6 @@ END;
 $$;
 
 -- updated timestamp trigger
-DROP TRIGGER IF EXISTS pg_n_pl_bulking_updated_trg ON pg_n_pl_bulking;
-CREATE TRIGGER pg_n_pl_bulking_updated_trg BEFORE UPDATE ON pg_n_pl_bulking FOR EACH ROW EXECUTE PROCEDURE set_updated_now_func();
+CREATE TRIGGER pg_n_pl_bulking_updated_trg
+BEFORE UPDATE ON pg_n_pl_bulking
+FOR EACH ROW EXECUTE PROCEDURE set_updated_now_func();

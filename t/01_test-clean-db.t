@@ -52,26 +52,4 @@ __END__
 Will try to connect to Postgres database pg_n_pl_bulking_db on localhost and (re)create all tables
 needed.
 
-=head1 DATABASE
-
-pg_hba.conf
-
-    host    pg_n_pl_bulking_db      nobody  127.0.0.1/32            trust
-
-    /etc/init.d/postgresql reload
-    psql -c 'CREATE ROLE nobody LOGIN;'
-    createdb --owner=nobody pg_n_pl_bulking_db
-
-    cat > ~/.pg_service.conf << __SERVICE__
-[pg_n_pl_bulking_db]
-host=localhost
-port=5432
-user=nobody
-dbname=pg_n_pl_bulking_db
-__SERVICE__
-
-    PGSERVICE=pg_n_pl_bulking_db psql
-
-    prove -l t/01_test-clean-db.t -v
-
 =cut

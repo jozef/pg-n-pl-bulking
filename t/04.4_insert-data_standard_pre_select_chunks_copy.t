@@ -14,7 +14,7 @@ use Path::Class qw(file dir);
 my $tsv = testlib->tsv;
 my $dbh = testlib->dbh;
 
-diag('FIXME ---> copy data escaping broken in some cases');
+note('FIXME ---> copy data escaping broken in some cases');
 
 cmp_ok(testlib->truncate_all(), '==', 0, 'table truncate');
 
@@ -110,10 +110,10 @@ __END__
 
 =head1 NAME
 
-07_insert-data_standard_pre_select_chunks_copy.t - insert/update using chunk updates and copy inserts
+04.4_insert-data_standard_pre_select_chunks_copy.t - insert/update using chunk updates and copy inserts
 
 =head1 SYNOPSIS
 
-    prove -v -l t/07_insert-data_standard_pre_select_chunks_copy.t
+    prove -v -l t/04.4_insert-data_standard_pre_select_chunks_copy.t
 
 =cut

@@ -92,10 +92,10 @@ __END__
 
 =head1 NAME
 
-06_insert-data_standard_pre_select_chunks_multi.t - insert/update using chunk updates and multi value insert
+04.3_insert-data_standard_pre_select_chunks_multi.t - insert/update using chunk updates and multi value insert
 
 =head1 SYNOPSIS
 
-    prove -v -l t/06_insert-data_standard_pre_select_chunks_multi.t
+    prove -v -l t/04.3_insert-data_standard_pre_select_chunks_multi.t
 
 =cut

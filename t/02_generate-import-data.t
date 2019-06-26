@@ -18,9 +18,8 @@ our $VERSION = '0.01';
 my $tsv         = testlib->tsv;
 my $tsv_headers = testlib->tsv_headers;
 
-my $data_files = testlib->data_files();
-foreach my $dfile ( keys %$data_files ) {
-    generate_file( $data_files->{$dfile}->{file}, $data_files->{$dfile}->{count} );
+foreach my $dfile (@{testlib->data_files()}) {
+    generate_file( $dfile->{file}, $dfile->{count} );
 }
 
 done_testing();
@@ -68,7 +67,5 @@ __END__
 =head1 SYNOPSIS
 
     prove -l -v t/02_generate-import-data.t
-
-will populate
 
 =cut

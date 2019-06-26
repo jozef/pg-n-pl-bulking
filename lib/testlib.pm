@@ -19,6 +19,12 @@ my $tsv_headers;
 my $data_files;
 my $tmp_dir = dir($Bin, '..', 'tmp');
 
+sub check_pg_9_5 {
+    my ($self) = @_;
+    plan skip_all => 'needs PostgreSQL server >= 9.5.0 to run (this is '.$self->dbh->{pg_server_version}.')'
+        if $self->dbh->{pg_server_version} < 90500;
+}
+
 sub dbh {
     return
         $dbh //= DBI->connect( 'dbi:Pg:service=pg_n_pl_bulking_db',
@@ -43,12 +49,12 @@ sub count_pg_n_pl_bulking {
 }
 
 sub on_tsv_row {
-    my ($self, $data_file_key, $callback) = @_;
+    my ($self, $data_file, $callback) = @_;
 
-    my $tsv_fh = file($self->data_files->{$data_file_key}->{file})->openr;
+    my $tsv_fh = $data_file->{file}->openr;
     my $tsv = $self->tsv;
     my $header_row = $tsv->getline($tsv_fh);
-    die $data_file_key
+    die $data_file
         unless $header_row;
     my @headers = map { lc($_) } @{$header_row};
     my %feed_data_row;
@@ -67,8 +73,7 @@ sub insert_or_update_row {
 
     my $t0 = time();
     my $total_count = 0;
-    my $data_files = testlib->data_files();
-    foreach my $dfile ( sort { $data_files->{$a}->{count} <=> $data_files->{$b}->{count} } keys %$data_files ) {
+    foreach my $dfile ( @{testlib->data_files()} ) {
         my $count = 0;
         my $t1 = time();
         testlib->on_tsv_row(
@@ -79,45 +84,56 @@ sub insert_or_update_row {
                 $count++;
             }
         );
-        ok($count, $count.' rows from '.$dfile.' processed');
+        $cb->(undef);    # send undef at the end to allow flushing of data chunks
+        ok($count, $count.' rows from '.$dfile->{file}->basename.' processed');
         note 'speed '.sprintf('%0.3f', $count/1000/(time-$t1)).'k/s';
         $total_count += $count;
+        #$self->vacuum_all;
     }
     ok($total_count, $total_count.' total rows processed');
-    diag 'total speed '.sprintf('%0.3f', $total_count/1000/(time-$t0)).'k/s';
+    diag $total_count.' rows total, speed '.sprintf('%0.3f', $total_count/1000/(time-$t0)).'k/s';
 }
 
 sub data_files {
-    return $data_files //= {
-        '1k.tsv' => {
-            file => $tmp_dir->file('1k.tsv'),
+    return $data_files //= [
+        {   file  => $tmp_dir->file('01_1k.tsv'),
             count => 1_000,
         },
-        '2k.tsv' => {
-            file => $tmp_dir->file('2k.tsv'),
+        {   file  => $tmp_dir->file('02_2k.tsv'),
             count => 2_000,
         },
-        '10k.tsv' => {
-            file => $tmp_dir->file('10k.tsv'),
+        {   file  => $tmp_dir->file('03_10k.tsv'),
             count => 10_000,
         },
-        '100k.tsv' => {
-            file => $tmp_dir->file('100k.tsv'),
-            count => 100_000,
+        {   file  => $tmp_dir->file('04_10k.tsv'),
+            count => 10_000,
         },
-        #~ '1m.tsv' => {
-            #~ file => $tmp_dir->file('1m.tsv'),
+        #~ {   file  => $tmp_dir->file('05_10k.tsv'),
+            #~ count => 10_000,
+        #~ },
+        #~ {   file  => $tmp_dir->file('06_10k.tsv'),
+            #~ count => 10_000,
+        #~ },
+        #~ {   file  => $tmp_dir->file('07_10k.tsv'),
+            #~ count => 10_000,
+        #~ },
+        #~ {   file  => $tmp_dir->file('04_100k.tsv'),
+            #~ count => 100_000,
+        #~ },
+        #~ {   file  => $tmp_dir->file('05_1m.tsv'),
             #~ count => 1_000_000,
         #~ },
-        #~ '10m.tsv' => {
-            #~ file => $tmp_dir->file('10m.tsv'),
-            #~ count => 10_000_000,
+        #~ {   file  => $tmp_dir->file('06_1m.tsv'),
+            #~ count => 1_000_000,
         #~ },
-        #~ '10m_2.tsv' => {
-            #~ file => $tmp_dir->file('10m_2.tsv'),
-            #~ count => 10_000_000,
+        #~ {   file  => $tmp_dir->file('07_1m.tsv'),
+            #~ count => 1_000_000,
         #~ },
-    };
+        #~ {
+        #~ file => $tmp_dir->file('06_10m.tsv'),
+        #~ count => 10_000_000,
+        #~ },
+    ];
 }
 
 sub tsv {
@@ -147,7 +163,10 @@ sub table_dump_file {
 
 sub test_table_dump {
     my ($self) = @_;
-    ok($self->table_dump_file->slurp eq $self->dump_pg_n_pl_bulking_table, 'table data match '.$self->table_dump_file);
+    my $dump_file_content = $self->table_dump_file->slurp;
+    my $table_content = $self->dump_pg_n_pl_bulking_table;
+    ok($dump_file_content eq $table_content, 'table data match '.$self->table_dump_file)
+        || file($self->table_dump_file.'_from-last-test')->spew($table_content);
 }
 
 1;

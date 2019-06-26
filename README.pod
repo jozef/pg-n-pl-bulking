@@ -1,30 +1,65 @@
 =head1 SYNOPSIS
 
-with 113k rows generated:
+with 23k rows, postgres on localhost:
 
     pg-n-pl-bulking$ prove -l t/
-    t/01_test-clean-db.t ................................. 1/? NOTICE:  trigger "pg_n_pl_bulking_updated_trg" for relation "pg_n_pl_bulking" does not exist, skipping
-    t/01_test-clean-db.t ................................. ok   
-    t/02_generate-import-data.t .......................... ok   
-    t/03_insert-data_standard.t .......................... 5/? # total speed 0.516k/s
-    t/03_insert-data_standard.t .......................... ok   
-    t/04_insert-data_standard_pre_select_chunks.t ........ 5/? # total speed 0.607k/s
-    t/04_insert-data_standard_pre_select_chunks.t ........ ok   
-    t/05_insert-data_standard_pre_select_chunks_async.t .. 5/? # total speed 0.592k/s
-    t/05_insert-data_standard_pre_select_chunks_async.t .. ok   
-    t/06_insert-data_standard_pre_select_chunks_multi.t .. 5/? # total speed 8.291k/s
-    t/06_insert-data_standard_pre_select_chunks_multi.t .. ok   
-    t/07_insert-data_standard_pre_select_chunks_copy.t ... 5/? # total speed 9.027k/s
-    t/07_insert-data_standard_pre_select_chunks_copy.t ... ok   
-    All tests successful.
-    Files=7, Tests=41, 633 wallclock secs ( 0.04 usr  0.00 sys + 87.40 cusr 22.72 csys = 110.16 CPU)
+    t/01_test-clean-db.t ................................... ok
+    t/02_generate-import-data.t ............................ ok
+    t/03.1_insert-data_standard.t .......................... 5/? # 23000 rows total, speed 0.642k/s
+    t/03.1_insert-data_standard.t .......................... ok
+    t/03.2_insert-data_standard_delete.t ................... 5/? # 23000 rows total, speed 0.644k/s
+    t/03.2_insert-data_standard_delete.t ................... ok
+    t/03.3_insert-data_on_conflict.t ....................... 5/? # 23000 rows total, speed 0.708k/s
+    t/03.3_insert-data_on_conflict.t ....................... ok
+    t/04.1_insert-data_standard_pre_select_chunks.t ........ 5/? # 23000 rows total, speed 0.711k/s
+    t/04.1_insert-data_standard_pre_select_chunks.t ........ ok
+    t/04.2_insert-data_standard_pre_select_chunks_async.t .. 5/? # 23000 rows total, speed 0.740k/s
+    t/04.2_insert-data_standard_pre_select_chunks_async.t .. ok
+    t/04.3_insert-data_standard_pre_select_chunks_multi.t .. 5/? # 23000 rows total, speed 8.565k/s
+    t/04.3_insert-data_standard_pre_select_chunks_multi.t .. ok
+    t/04.4_insert-data_standard_pre_select_chunks_copy.t ... 5/? # 23000 rows total, speed 10.476k/s
+    t/04.4_insert-data_standard_pre_select_chunks_copy.t ... ok
+    t/05.1_insert-data_standard_multi_on_conflict.t ........ 4/? # 23000 rows total, speed 12.111k/s
+    t/05.1_insert-data_standard_multi_on_conflict.t ........ ok
+    t/05.2_insert-data_standard_multi_on_conflict_async.t .. 5/? # 23000 rows total, speed 12.418k/s
+    t/05.2_insert-data_standard_multi_on_conflict_async.t .. ok     All tests successful.
+    Files=11, Tests=69, 181 wallclock secs ( 0.08 usr  0.00 sys + 19.30 cusr  9.34 csys = 28.72 CPU)
     Result: PASS
 
-=head1 TODO
+=head1 DATABASE SETUP
 
-    * \copy escaping issues (with possible table and backslashes in jsonb)
+=head2 as root
+
+pg_hba.conf, datable and role:
+
+    host    pg_n_pl_bulking_db      nobody  127.0.0.1/32            trust
+
+    /etc/init.d/postgresql reload
+    su - postgres
+    psql -c 'CREATE ROLE nobody LOGIN;'
+    createdb --owner=nobody pg_n_pl_bulking_db
+    exit
+
+=head2 as user:
+
+    cat > ~/.pg_service.conf << __SERVICE__
+[pg_n_pl_bulking_db]
+host=localhost
+port=5432
+user=nobody
+dbname=pg_n_pl_bulking_db
+__SERVICE__
+
+    # to test
+    PGSERVICE=pg_n_pl_bulking_db psql
+
+    # to create test tables
+    prove -l t/01_test-clean-db.t -v
+
+=head1 TODO/FIXME
+
+    * \copy escaping issues (with possible tabs and backslashes in jsonb)
     * deduplicating same-iden rows in same chunk
     * try txn_do { delete + insert }
-    * use prepare() statements
 
 =cut
