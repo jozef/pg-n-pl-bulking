@@ -40,6 +40,7 @@ sub truncate_all {
     my ($self) = @_;
     $self->dbh->do(q{truncate pg_n_pl_bulking;});
     $self->vacuum_all();
+    sleep(1);   # let the db recover from truncate before testing starts
     return $self->count_pg_n_pl_bulking();
 }
 

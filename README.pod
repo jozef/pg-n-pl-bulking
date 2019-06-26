@@ -1,6 +1,6 @@
 =head1 SYNOPSIS
 
-with 23k rows, postgres on localhost:
+with 23k rows, Postgres server 9.6.12 on localhost:
 
     pg-n-pl-bulking$ prove -l t/
     t/01_test-clean-db.t ................................... ok
@@ -26,6 +26,33 @@ with 23k rows, postgres on localhost:
     Files=11, Tests=69, 181 wallclock secs ( 0.08 usr  0.00 sys + 19.30 cusr  9.34 csys = 28.72 CPU)
     Result: PASS
 
+with 23k rows, Postgres server 9.6.8 over local network
+
+    pg-n-pl-bulking[master]$ prove -l t/
+    t/01_test-clean-db.t ................................... ok
+    t/02_generate-import-data.t ............................ ok
+    t/03.1_insert-data_standard.t .......................... 5/? # 23000 rows total, speed 0.540k/s
+    t/03.1_insert-data_standard.t .......................... ok
+    t/03.2_insert-data_standard_delete.t ................... 5/? # 23000 rows total, speed 0.599k/s
+    t/03.2_insert-data_standard_delete.t ................... ok
+    t/03.3_insert-data_on_conflict.t ....................... 5/? # 23000 rows total, speed 1.099k/s
+    t/03.3_insert-data_on_conflict.t ....................... ok
+    t/04.1_insert-data_standard_pre_select_chunks.t ........ 5/? # 23000 rows total, speed 1.129k/s
+    t/04.1_insert-data_standard_pre_select_chunks.t ........ ok
+    t/04.2_insert-data_standard_pre_select_chunks_async.t .. 5/? # 23000 rows total, speed 1.222k/s
+    t/04.2_insert-data_standard_pre_select_chunks_async.t .. ok
+    t/04.3_insert-data_standard_pre_select_chunks_multi.t .. 5/? # 23000 rows total, speed 7.884k/s
+    t/04.3_insert-data_standard_pre_select_chunks_multi.t .. ok
+    t/04.4_insert-data_standard_pre_select_chunks_copy.t ... 5/? # 23000 rows total, speed 9.120k/s
+    t/04.4_insert-data_standard_pre_select_chunks_copy.t ... ok
+    t/05.1_insert-data_standard_multi_on_conflict.t ........ 5/? # 23000 rows total, speed 10.454k/s
+    t/05.1_insert-data_standard_multi_on_conflict.t ........ ok
+    t/05.2_insert-data_standard_multi_on_conflict_async.t .. 5/? # 23000 rows total, speed 10.325k/s
+    t/05.2_insert-data_standard_multi_on_conflict_async.t .. ok
+    All tests successful.
+    Files=11, Tests=69, 166 wallclock secs ( 0.06 usr  0.00 sys + 22.14 cusr  8.18 csys = 30.38 CPU)
+    Result: PASS
+
 =head1 DATABASE SETUP
 
 =head2 as root
@@ -42,13 +69,14 @@ pg_hba.conf, datable and role:
 
 =head2 as user:
 
-    cat > ~/.pg_service.conf << __SERVICE__
-[pg_n_pl_bulking_db]
-host=localhost
-port=5432
-user=nobody
-dbname=pg_n_pl_bulking_db
-__SERVICE__
+    cat >> ~/.pg_service.conf << __SERVICE__
+
+    [pg_n_pl_bulking_db]
+    host=localhost
+    port=5432
+    user=nobody
+    dbname=pg_n_pl_bulking_db
+    __SERVICE__
 
     # to test
     PGSERVICE=pg_n_pl_bulking_db psql
