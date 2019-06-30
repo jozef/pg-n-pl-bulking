@@ -95,7 +95,7 @@ or for a single test
     prove -l t/…
 
 pleae note that the F<03.1_insert-data_standard.t> will generate database
-dump F< tmp/test_dump-pg_n_pl_bulking.tsv > for verifing if the other
+dump F< tmp/test_dump-pg_n_pl_bulking.tsv > to verify if the other
 methods are correctly inserting/updating the data.
 
 =head1 TODO/FIXME
