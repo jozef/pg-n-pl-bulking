@@ -170,6 +170,23 @@ sub test_table_dump {
         || file($self->table_dump_file.'_from-last-test')->spew($table_content);
 }
 
+sub format_copy_cell {
+    my ($self, $cell_content) = @_;
+    # see https://www.postgresql.org/docs/9.1/sql-copy.html#AEN64380 (Text Format)
+
+    return '\N' if !defined($cell_content);
+
+    $cell_content =~ s/\\/\\\\/g;
+    $cell_content =~ s/\x08/\\b/g;
+    $cell_content =~ s/\x09/\\t/g;
+    $cell_content =~ s/\x0a/\\n/g;
+    $cell_content =~ s/\x0b/\\v/g;
+    $cell_content =~ s/\x0c/\\f/g;
+    $cell_content =~ s/\x0d/\\r/g;
+
+    return $cell_content;
+}
+
 1;
 
 __END__

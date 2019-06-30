@@ -8,13 +8,11 @@ use Test::Most;
 use testlib;
 
 use DBI;
-use DBD::Pg qw(PG_JSONB);
+use DBD::Pg;
 use Path::Class qw(file dir);
 
 my $tsv = testlib->tsv;
 my $dbh = testlib->dbh;
-
-note('FIXME ---> copy data escaping broken in some cases');
 
 cmp_ok(testlib->truncate_all(), '==', 0, 'table truncate');
 
@@ -83,12 +81,7 @@ sub insert_or_update {
                 qq{COPY pg_n_pl_bulking (title,num,meta,ident) FROM STDIN},
             );
             foreach my $row (@inserts) {
-                $copy_data .= join(
-                    "\t",
-                    map {$_ =~ s/\t/ /g; $_}    # TODO figure out how to encode \t for copy command
-                        map {defined($_) ? $_ : '\N'}
-                        ($row->[0], $row->[1], $row->[2], jsonb_for_data($row->[3],),)
-                ) . "\n";
+                $copy_data .= join("\t", (map {testlib->format_copy_cell($_)} @$row)) . "\n";
             }
             $dbh->pg_putcopydata($copy_data);
             $dbh->pg_putcopyend();
@@ -97,13 +90,6 @@ sub insert_or_update {
         $data_chunk = 0;
         %$idents    = ();
     }
-}
-
-sub jsonb_for_data {
-    my ($string) = @_;
-    $string = $dbh->quote($string, { pg_type => PG_JSONB });
-    $string =~ s/^E?'(.+)'$/$1/g;
-    return $string;
 }
 
 __END__

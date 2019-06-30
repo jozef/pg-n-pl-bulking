@@ -41,7 +41,7 @@ sub generate_file {
                                         timestamp => int( time() ),
                                         garbage =>
                                             join( '.',
-                                             ( map { chr( 40 + rand(50) ) } ( 1 .. rand(100) ) ) )
+                                             ( map { chr( 1 + rand(254) ) } ( 1 .. rand(100) ) ) )
                                       }
                           ),
                        ],

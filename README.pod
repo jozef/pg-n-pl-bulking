@@ -100,8 +100,6 @@ methods are correctly inserting/updating the data.
 
 =head1 TODO/FIXME
 
-    * \copy escaping issues (with possible tabs and backslashes in jsonb)
-    * deduplicating same-iden rows in same chunk
     * try txn_do { delete + insert }
 
 =head1 SEE ALSO
