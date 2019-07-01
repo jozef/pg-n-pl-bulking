@@ -1,3 +1,5 @@
+=encoding utf8
+
 =head1 SYNOPSIS
 
 with 23k rows, Postgres server 9.6.12 on localhost:
@@ -104,8 +106,8 @@ methods are correctly inserting/updating the data.
 
 =head1 SEE ALSO
 
-More text/description and commenting possibility on my blog: L< https://blog.kutej.net/2019/06/pg-n-pl-bulking >.
+More text/description and commenting possibility on my blog: L<https://blog.kutej.net/2019/06/pg-n-pl-bulking>.
 
-Feel free to create an issue or make a pull-request on GitHub L< https://github.com/jozef/pg-n-pl-bulking >.
+Feel free to create an issue or make a pull-request on GitHub L<https://github.com/jozef/pg-n-pl-bulking>.
 
 =cut
